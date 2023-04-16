@@ -25,13 +25,46 @@ def index():
     return jsonify(message="This is the beginning of our API")
 
 
-@app.route('/api/v1/users/{user_id}/posts', methods=['GET'])
-def get_userposts():
-    return jsonify(message="This is the beginning of our API")
+@app.route('/api/v1/users/<user_id>/posts', methods=['GET'])
+def get_userposts(user_id):
+    try:
+        if request.method == "GET":
+            user_posts = db.session.query(Posts).filter_by(user_id=user_id).all()
 
-@app.route('/api/users/{user_id}/follow', methods=['POST'])
-def follow_user():
-    return jsonify(message="This is the beginning of our API")
+            posts = []
+
+            for post in user_posts:
+                post_data = {
+                    'id': post.id,
+                    'caption': post.caption,
+                    'photo': post.photo,
+                    'created_on': post.created_on
+                }
+                posts.append(post_data)
+
+            return jsonify({'posts': posts})
+    except:
+        return jsonify({"errors": "Request Failed"}), 401
+
+@app.route('/api/users/<user_id>/follow', methods=['POST'])
+@login_required
+def follow_user(user_id):
+    current_user = current_user()
+    target_user = Users.query.filter_by(id=user_id).first()
+
+    if target_user is None:
+        return jsonify({'error': 'User not found'}), 404
+
+    follow = Follows.query.filter_by(follower_id=current_user.id, user_id=target_user.id).first()
+
+    if follow is not None:
+        return jsonify({'error': 'Already following this user'}), 400
+
+    follow = Follows(follower_id=current_user.id, user_id=target_user.id)
+    db.session.add(follow)
+    db.session.commit()
+
+    return jsonify({'message': 'Successfully followed user'}), 200
 
 @app.route('/api/v1/posts', methods=['GET'])
 def get_allposts():
@@ -52,10 +85,23 @@ def get_allposts():
             return jsonify (data=data), 200 
     except:
         return jsonify({"errors": "Request Failed"}), 401
+    
+@app.route('/api/v1/posts/<post_id>/like', methods=['POST'])
+@login_required
+def like_post(post_id):
+    post = Posts.query.get(post_id)
+    if not post:
+        return jsonify({'error': 'Post not found'}), 404
 
-@app.route('/api/v1/posts/{post_id}/like', methods='POST')
-def like_post():
-    return jsonify(message="This is the beginning of our API")
+    like = Likes.query.filter_by(post_id=post_id, user_id=current_user.id).first()
+    if like:
+        return jsonify({'error': 'Like already exists'}), 400
+
+    new_like = Likes(post_id=post_id, user_id=current_user.id)
+    db.session.add(new_like)
+    db.session.commit()
+
+    return jsonify({'success': 'Like added successfully'}), 201
 
 @app.route('/api/v1/register', methods=['POST'])
 def register():
@@ -228,7 +274,7 @@ def add_header(response):
     return response
 
 
-@app.errorhandler(404)
-def page_not_found(error):
-    """Custom 404 page."""
-    return render_template('404.html'), 404
+#@app.errorhandler(404)
+#def page_not_found(error):
+#    """Custom 404 page."""
+#    return render_template('404.html'), 404
