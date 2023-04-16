@@ -118,10 +118,10 @@ def register():
         location = form.location.data
         biography = form.biography.data
         profile_photo = form.profile_photo.data
-        #securedprofile_photo = secure_filename(profile_photo.filename)
+        securedprofile_photo = secure_filename(profile_photo.filename)
         joined_on = datetime.datetime.now()
 
-        #profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedprofile_photo))
+        profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedprofile_photo))
 
         newuser =  Users(username, password, firstname, lastname, email, location, biography, profile_photo)
         db.session.add(newuser)
@@ -137,7 +137,7 @@ def register():
             "email": newuser.email,
             "location": newuser.location,
             "biography": newuser.biography,
-            "profile": newuser.profile_photo,
+            "profile_photo": newuser.profile_photo,
             "joined_on": newuser.joined_on
         }),200    
        
@@ -170,8 +170,7 @@ def login():
 
         # Remember to flash a message to the user
             return jsonify({
-            "message": "User Login Successful.",
-            "token": generate_csrf()
+            "message": "User Login Successful."
         }),200 
 
             #return redirect(url_for("upload"))  # The user should be redirected to the upload form instead
@@ -209,12 +208,12 @@ def add_post(user_id):
     if form.validate_on_submit():
 
         photo = form.photo.data
-        #securedphoto = secure_filename(photo.filename)
+        securedphoto = secure_filename(photo.filename)
         caption = form.caption.data
         
         joined_on = datetime.datetime.now()
 
-        #photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo))
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo))
 
         newpost =  Posts(caption, photo, user_id)
         db.session.add(newpost)
@@ -231,6 +230,10 @@ def add_post(user_id):
     return jsonify({
             "errors": form_errors(form) 
             }),400
+
+@app.route("/api/v1/photos/<filename>")
+def get_image(filename):
+    return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
 
 
 ###
