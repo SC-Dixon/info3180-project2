@@ -5,7 +5,7 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app
+from app import app, db
 from flask import render_template, request, jsonify, send_file
 from .models import Posts, Likes, Follows, Users
 import os
@@ -19,6 +19,38 @@ import os
 def index():
     return jsonify(message="This is the beginning of our API")
 
+
+@app.route('/api/v1/users/{user_id}/posts', methods=['GET'])
+def get_userposts():
+    return jsonify(message="This is the beginning of our API")
+
+@app.route('/api/users/{user_id}/follow', methods=['POST'])
+def follow_user():
+    return jsonify(message="This is the beginning of our API")
+
+@app.route('/api/v1/posts', methods=['GET'])
+def get_allposts():
+    try:
+        if request.method == "GET":
+            #Retrieve data from the database
+            posts = db.session.query(Posts).all()
+            data = []
+            
+            for post in posts:
+                data.append ({
+                    'id': post.id,
+                    'caption': post.caption,
+                    'photo': post.photo,
+                    'user_id': post.user_id,
+                    'created_on': post.created_on
+                })
+            return jsonify (data=data), 200 
+    except:
+        return jsonify({"errors": "Request Failed"}), 401
+
+@app.route('/api/v1/posts/{post_id}/like', methods='POST')
+def like_post():
+    return jsonify(message="This is the beginning of our API")
 
 ###
 # The functions below should be applicable to all Flask apps.
