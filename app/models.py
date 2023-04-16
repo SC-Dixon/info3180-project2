@@ -1,6 +1,7 @@
 # Add any model classes for Flask-SQLAlchemy here
 from . import db
 from datetime import datetime
+from werkzeug.security import generate_password_hash
 
 class Posts(db.Model):
     __tablename__ = 'Posts'
@@ -9,12 +10,13 @@ class Posts(db.Model):
     caption = db.Column(db.String(500))
     photo = db.Column(db.String(200))
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    created_on = db.Column(db.DateTime)
+    created_on = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __init__(self, caption, photo, user_id):
-        self.name = caption
-        self.age = photo
+        self.caption = caption
+        self.photo = photo
         self.user_id = user_id
+        self.joined_on = datetime.utcnow()
 
     def __repr__(self):
         return '<Posts %r>' % (self.caption)
@@ -63,7 +65,7 @@ class Users(db.Model):
 
     def __init__(self, username, password, firstname, lastname, email, location, biography, profile_photo):
         self.username = username
-        self.password = password
+        self.password = generate_password_hash(password, method='pbkdf2:sha256')
         self.firstname = firstname
         self.lastname = lastname
         self.email = email
@@ -71,6 +73,21 @@ class Users(db.Model):
         self.biography = biography
         self.profile_photo = profile_photo
         self.joined_on = datetime.utcnow()
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2 support
+        except NameError:
+            return str(self.id)  # python 3 support
 
     def __repr__(self):
         return '<Users %r>' % (self.username)

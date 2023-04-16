@@ -5,11 +5,16 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app, db
-from flask import render_template, request, jsonify, send_file
-from .models import Posts, Likes, Follows, Users
+from app import app, db, login_manager
+from flask import render_template,make_response, request, jsonify, send_file, redirect, url_for, flash, session, abort, send_from_directory
+from werkzeug.utils import secure_filename
+from flask_wtf.csrf import generate_csrf
+import datetime
+from flask_login import login_user, logout_user, current_user, login_required
+from app.models import Posts,Likes,Follows,Users
+from app.forms import RegisterForm, LoginForm, PostForm
+from werkzeug.security import check_password_hash
 import os
-
 
 ###
 # Routing for your application.
@@ -52,12 +57,145 @@ def get_allposts():
 def like_post():
     return jsonify(message="This is the beginning of our API")
 
+@app.route('/api/v1/register', methods=['POST'])
+def register():
+
+    form = RegisterForm()
+        
+    if form.validate_on_submit():
+
+        username = form.username.data
+        password = form.password.data
+        firstname = form.firstname.data
+        lastname = form.lastname.data
+        email = form.email.data
+        location = form.location.data
+        biography = form.biography.data
+        profile_photo = form.profile_photo.data
+        #securedprofile_photo = secure_filename(profile_photo.filename)
+        joined_on = datetime.datetime.now()
+
+        #profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedprofile_photo))
+
+        newuser =  Users(username, password, firstname, lastname, email, location, biography, profile_photo)
+        db.session.add(newuser)
+        db.session.commit()
+        
+        
+        return jsonify({
+            "message": "User Successfully added",
+            "username": newuser.username,
+            "password": newuser.password,
+            "firstname": newuser.firstname,
+            "lastname": newuser.lastname,
+            "email": newuser.email,
+            "location": newuser.location,
+            "biography": newuser.biography,
+            "profile": newuser.profile_photo,
+            "joined_on": newuser.joined_on
+        }),200    
+       
+    return jsonify({
+            "errors": form_errors(form) 
+            }),400
+
+@app.route('/api/v1/auth/login', methods=['POST'])
+def login():
+    form = LoginForm()
+
+    # change this to actually validate the entire form submission
+    # and not just one field
+    if form.validate_on_submit():
+        # Get the username and password values from the form.
+        username = form.username.data
+        password = form.password.data
+
+        # Using your model, query database for a user based on the username
+        # and password submitted. Remember you need to compare the password hash.
+        # You will need to import the appropriate function to do so.
+        # Then store the result of that query to a `user` variable so it can be
+        # passed to the login_user() method below.
+        user = db.session.execute(db.select(Users).filter_by(username=username)).scalar()
+
+        if user is not None and check_password_hash(user.password, password):
+
+        # Gets user id, load into session
+            login_user(user)
+
+        # Remember to flash a message to the user
+            return jsonify({
+            "message": "User Login Successful.",
+            "token": generate_csrf()
+        }),200 
+
+            #return redirect(url_for("upload"))  # The user should be redirected to the upload form instead
+        else:
+            jsonify({
+            "danger": "Username or Password is incorrect."
+        })
+
+    return jsonify({
+            "errors": form_errors(form) 
+            }),400
+
+
+# user_loader callback. This callback is used to reload the user object from
+# the user ID stored in the session
+@login_manager.user_loader
+def load_user(id):
+    return db.session.execute(db.select(Users).filter_by(id=id)).scalar()
+
+
+@app.route('/api/v1/auth/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({
+            "message": "User Logout Successful."
+        }),200 
+
+@app.route('/api/v1/users/<user_id>/posts', methods=['POST'])
+@login_required
+def add_post(user_id):
+
+    form = PostForm()
+        
+    if form.validate_on_submit():
+
+        photo = form.photo.data
+        #securedphoto = secure_filename(photo.filename)
+        caption = form.caption.data
+        
+        joined_on = datetime.datetime.now()
+
+        #photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo))
+
+        newpost =  Posts(caption, photo, user_id)
+        db.session.add(newpost)
+        db.session.commit()
+        
+        
+        return jsonify({
+            "message": "New Post Successfully Created.",
+            "caption": newpost.caption,
+            "photo": newpost.photo,
+            "created_on": newpost.created_on
+        }),200    
+       
+    return jsonify({
+            "errors": form_errors(form) 
+            }),400
+
+
 ###
 # The functions below should be applicable to all Flask apps.
 ###
 
 # Here we define a function to collect form errors from Flask-WTF
 # which we can later use
+
+
+
 def form_errors(form):
     error_messages = []
     """Collects form errors"""
