@@ -217,9 +217,9 @@ def add_post(user_id):
         
         joined_on = datetime.datetime.now()
 
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo))
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedphoto))
 
-        newpost =  Posts(caption, photo, user_id)
+        newpost =  Posts(caption, securedphoto, user_id)
         db.session.add(newpost)
         db.session.commit()
         

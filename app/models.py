@@ -16,7 +16,7 @@ class Posts(db.Model):
         self.caption = caption
         self.photo = photo
         self.user_id = user_id
-        self.joined_on = datetime.utcnow()
+        self.created_on = datetime.utcnow()
 
     def __repr__(self):
         return '<Posts %r>' % (self.caption)
