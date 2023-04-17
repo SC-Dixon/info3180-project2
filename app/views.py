@@ -127,7 +127,7 @@ def register():
 
         profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedprofile_photo))
 
-        newuser =  Users(username, password, firstname, lastname, email, location, biography, profile_photo)
+        newuser =  Users(username, password, firstname, lastname, email, location, biography, securedprofile_photo)
         db.session.add(newuser)
         db.session.commit()
         
