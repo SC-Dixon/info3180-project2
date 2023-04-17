@@ -41,12 +41,12 @@ def register():
         location = form.location.data
         biography = form.biography.data
         profile_photo = form.profile_photo.data
-        #securedprofile_photo = secure_filename(profile_photo.filename)
+        securedprofile_photo = secure_filename(profile_photo.filename)
         joined_on = datetime.datetime.now()
 
-        #profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedprofile_photo))
+        profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedprofile_photo))
 
-        newuser =  Users(username, password, firstname, lastname, email, location, biography, profile_photo)
+        newuser =  Users(username, password, firstname, lastname, email, location, biography, securedprofile_photo)
         db.session.add(newuser)
         db.session.commit()
         
@@ -132,14 +132,14 @@ def add_post(user_id):
     if form.validate_on_submit():
 
         photo = form.photo.data
-        #securedphoto = secure_filename(photo.filename)
+        securedphoto = secure_filename(photo.filename)
         caption = form.caption.data
         
         joined_on = datetime.datetime.now()
 
-        #photo.save(os.path.join(app.config['UPLOAD_FOLDER'], photo))
+        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedphoto))
 
-        newpost =  Posts(caption, photo, user_id)
+        newpost =  Posts(caption, securedphoto, user_id)
         db.session.add(newpost)
         db.session.commit()
         
@@ -154,6 +154,11 @@ def add_post(user_id):
     return jsonify({
             "errors": form_errors(form) 
             }),400
+
+@app.route("/api/v1/photos/<filename>")
+def get_image(filename):
+    return send_from_directory(os.path.join(os.getcwd(),app.config['UPLOAD_FOLDER']),filename)
+
 
 
 ###
