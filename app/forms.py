@@ -12,13 +12,13 @@ class RegisterForm(FlaskForm):
     email = StringField('Email', validators=[InputRequired(), Email()])
     location = StringField('Location', validators=[InputRequired()])
     biography = TextAreaField('Biography', validators=[InputRequired()])
-    profile_photo = TextAreaField('photo', validators=[InputRequired()])
+    profile_photo = FileField('Profile Photo', validators=[FileRequired(), FileAllowed(['jpg', 'png', 'jpeg'], 'Images Only!')])
     
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired()])
 
 class PostForm(FlaskForm):
-    photo = TextAreaField('Photo', validators=[InputRequired()])
+    photo = FileField('Profile Photo', validators=[FileRequired(), FileAllowed(['jpg', 'png', 'jpeg'], 'Images Only!')])
     caption = TextAreaField('Caption', validators=[InputRequired()])
     
