@@ -7,6 +7,7 @@
   onMounted(() => {
     getCsrfToken();
   });
+
   function getCsrfToken() {
     fetch('/api/v1/csrf-token')
       .then((response) => response.json())
@@ -15,9 +16,11 @@
         csrf_token.value = data.csrf_token;
       })
     }
+
   function RegisterUser() {
   let RegisterForm =document.getElementById('RegisterForm');
   let form_data = new FormData(RegisterForm);
+
   fetch("/api/v1/register", {
     method: 'POST',
     body: form_data,
@@ -35,12 +38,13 @@
         clearFormData();
          
       }
-      if (data.data){
-        FlashMessage.value = "User Registered Successfully!";
+       else{
+        FlashMessage.value = "Registered Successfully!";
          success.value = true;
          danger.value = false;
          clearFormData();
          console.log(data);
+         window.location.href = '/';
          
       }
     
@@ -57,7 +61,9 @@
 </script>
 
 <template>
-  <div class = "formbox">
+  <div class="heading">
+    <h1 >Register</h1>
+    <div class = "formbox">
     <div v-if="success" class = "alert alert-success">{{FlashMessage}}</div>
     <div v-if ="danger" class = "alert alert-danger"> 
       <li v-for= "d in FlashMessage">{{d}}</li>
@@ -115,16 +121,33 @@
     </div>
 
     <div class="form-group mb-3">
-      <button type="submit"  class="btn btn-primary mb-3" >Register</button>
+      <a><button type="submit"  class="btn btn-primary mb-3" >Register</button></a>
     </div>
 
     </form>
   </div>
+  </div>
+  
 </template>
 
 
 
 <style>
+.heading{
+ margin:auto; 
+ justify-content: center;
+ text-align:center;
+}
+
+.formbox{
+  margin:auto;
+  border: 2px solid gray;
+  background-color:white;
+  width:400px;
+  box-shasow:0 0 6px;
+  padding: 20px;
+  justify-content: center;
+}
 label{
     font-weight: bold;
 }

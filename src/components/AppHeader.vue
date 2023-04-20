@@ -26,17 +26,20 @@
               <RouterLink class="nav-link" to="/about">My Profile</RouterLink>
             </li>
             <li class="nav-item">
-              <RouterLink class="nav-link" to="/">Logout</RouterLink>
+              <RouterLink  class="nav-link"  to="/logout">Logout</RouterLink>
             </li>
           </ul>
         </div>
       </div>
     </nav>
   </header>
+   
+        
 </template>
 
-<script setup>
+<script>
 import { RouterLink } from "vue-router";
+
 </script>
 
 <style>
