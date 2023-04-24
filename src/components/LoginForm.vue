@@ -27,21 +27,22 @@
     })
     .then(function (response) {
     return response.json();
+    
     })
     .then(function (data) {
       if(data.errors){
         FlashMessage.value = data.errors;
         danger.value = true;
         clearFormData();
-         
       }
-      if (data.data){
-        FlashMessage.value = "Login Successful !";
+      else{
+        FlashMessage.value = "Login Successful!";
          success.value = true;
          danger.value = false;
-         clearFormData();
-         console.log(data);
-         
+         localStorage.setItem('username',form_data.get("username"));
+         localStorage.setItem('JWT',data.token);
+         clearFormData(); 
+         window.location.href = '/';    
       }
     
     })
@@ -57,8 +58,11 @@
 </script>
 
 <template>
-  <div class = "formbox">
-    <div v-if="success" class = "alert alert-success">{{FlashMessage}}</div>
+  <div class="heading">
+    <h1 >Login</h1>
+    <div class = "formbox">
+  
+    <div v-if="success" class = "alert alert-success" >{{FlashMessage}}</div>
     <div v-if ="danger" class = "alert alert-danger"> 
       <li v-for= "d in FlashMessage">{{d}}</li>
     </div>
@@ -85,11 +89,29 @@
 
     </form>
   </div>
+  </div>
+  
 </template>
 
 
 
 <style>
+
+.heading{
+ margin:auto; 
+ justify-content: center;
+ text-align:center;
+}
+
+.formbox{
+  margin:auto;
+  border: 2px solid gray;
+  background-color:white;
+  width:400px;
+  box-shadow:0 0 6px;
+  padding: 20px;
+  justify-content: center;
+}
 label{
     font-weight: bold;
 }

@@ -16,6 +16,7 @@ from app.forms import RegisterForm, LoginForm, PostForm
 from werkzeug.security import check_password_hash
 import os
 from flask_wtf.csrf import generate_csrf
+from flask_jwt_extended import create_access_token
 
 ###
 # Routing for your application.
@@ -174,7 +175,8 @@ def login():
 
         # Remember to flash a message to the user
             return jsonify({
-            "message": "User Login Successful."
+            "message": "User Login Successful.",
+            "token":create_access_token(identity=username)
         }),200 
 
             #return redirect(url_for("upload"))  # The user should be redirected to the upload form instead
@@ -214,8 +216,7 @@ def add_post(user_id):
         photo = form.photo.data
         securedphoto = secure_filename(photo.filename)
         caption = form.caption.data
-        
-        joined_on = datetime.datetime.now()
+        user_id=current_user.id
 
         photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedphoto))
 
