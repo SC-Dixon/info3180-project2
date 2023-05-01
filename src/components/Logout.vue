@@ -7,7 +7,7 @@ import { RouterLink } from "vue-router";
      return {
       csrf_token: '',
       FlashMessage:'',
-      userid: localStorage.getItem('userid'),
+      userid: localStorage.getItem('username'),
       };  
   },
   created() {
@@ -29,7 +29,7 @@ import { RouterLink } from "vue-router";
         .then((data) => { 
             self.FlashMessage =  data.message;
             console.log(data);
-            localStorage.removeItem('userid');
+            localStorage.removeItem('username');
             localStorage.removeItem('JWT'); 
             window.location.href = '/';
             
