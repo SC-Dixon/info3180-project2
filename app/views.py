@@ -9,7 +9,7 @@ from app import app, db, login_manager
 from flask import render_template,make_response, request, jsonify, send_file, redirect, url_for, flash, session, abort, send_from_directory
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import generate_csrf
-import datetime
+from datetime import datetime, timedelta
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Posts,Likes,Follows,Users
 from app.forms import RegisterForm, LoginForm, PostForm
@@ -17,6 +17,7 @@ from werkzeug.security import check_password_hash
 import os
 from flask_wtf.csrf import generate_csrf
 from flask_jwt_extended import create_access_token
+import jwt
 
 ###
 # Routing for your application.
@@ -71,7 +72,7 @@ def follow_user(user_id):
 
     return jsonify({'message': 'Successfully followed user'}), 200
 
-@app.route('/api/v1/posts', methods=['GET'])
+@app.route('/api/v1/<user_id>/posts', methods=['GET'])
 def get_allposts():
     try:
         if request.method == "GET":
@@ -169,25 +170,32 @@ def login():
         user = db.session.execute(db.select(Users).filter_by(username=username)).scalar()
 
         if user is not None and check_password_hash(user.password, password):
+            timestamp = datetime.utcnow()
+        
+            payload = {
+                'sub': user.id, 
+                'user': username,
+                'iat': timestamp,
+                'exp': timestamp + timedelta(hours=2) 
+            }
 
-        # Gets user id, load into session
+            token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
             login_user(user)
 
-        # Remember to flash a message to the user
-            return jsonify({
-            "message": "User Login Successful.",
-            "token":create_access_token(identity=username)
-        }),200 
-
-            #return redirect(url_for("upload"))  # The user should be redirected to the upload form instead
-        else:
-            jsonify({
-            "danger": "Username or Password is incorrect."
-        })
-
-    return jsonify({
-            "errors": form_errors(form) 
-            }),400
+            return jsonify(
+                { 
+                    "message": "Login Successfully",
+                    "id": user.id,
+                    "token": token  
+                    
+                    
+                }), 200
+        return jsonify(
+                { 
+                    "errors": "Wrong Username or Password entered."
+                }), 400
+    
+    return jsonify(errors=form_errors(form)), 400
 
 
 # user_loader callback. This callback is used to reload the user object from
@@ -204,6 +212,36 @@ def logout():
     return jsonify({
             "message": "User Logout Successful."
         }),200 
+
+@app.route('/api/v1/users/<user_id>', methods=['GET'])
+def view_user(userid):
+    try:
+        if request.method == 'GET':
+            users = Users.query.filter_by(id=userid).all()
+            numfollowers = Follows.query.filter_by(user_id=userid).count()
+            numposts = Posts.query.filter_by(user_id=userid).count()
+            isFollowed = Follows.query.filter_by(user_id=userid).filter_by(follower_id=current_user.id).count()
+            isFollowed = isFollowed==1
+            data = []
+            for user in users:
+                a_user = {
+                    'id': user.id,
+                    'name': user.firstname + " " + user.lastname,
+                    'username': user.username,
+                    'photo': user.profile_photo,
+                    'email': user.email,
+                    'location': user.location,
+                    'biography': user.biography,
+                    'joined_on': user.joined_on,
+                    'numfollowers': numfollowers,
+                    'numposts': numposts,
+                    'isFollowed': isFollowed
+                }
+                data.append(a_user)
+
+            return jsonify(data), 200
+    except Exception as e:
+        return jsonify({"errors": e}), 400
 
 @app.route('/api/v1/users/<user_id>/posts', methods=['POST'])
 @login_required

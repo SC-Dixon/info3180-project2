@@ -10,13 +10,13 @@ class Posts(db.Model):
     caption = db.Column(db.String(500))
     photo = db.Column(db.String(200))
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))
-    created_on = db.Column(db.DateTime, default=datetime.utcnow)
+    created_on = db.Column(db.DateTime)
 
     def __init__(self, caption, photo, user_id):
         self.caption = caption
         self.photo = photo
         self.user_id = user_id
-        self.created_on = datetime.utcnow()
+        self.created_on = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def __repr__(self):
         return '<Posts %r>' % (self.caption)
@@ -61,7 +61,7 @@ class Users(db.Model):
     location = db.Column(db.String(200))
     biography = db.Column(db.String(500))
     profile_photo = db.Column(db.String(200))
-    joined_on = db.Column(db.DateTime(), default=datetime.utcnow)
+    joined_on = db.Column(db.DateTime())
 
     def __init__(self, username, password, firstname, lastname, email, location, biography, profile_photo):
         self.username = username
@@ -72,7 +72,7 @@ class Users(db.Model):
         self.location = location
         self.biography = biography
         self.profile_photo = profile_photo
-        self.joined_on = datetime.utcnow()
+        self.joined_on = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def is_authenticated(self):
         return True
