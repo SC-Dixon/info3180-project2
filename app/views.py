@@ -9,22 +9,15 @@ from app import app, db, login_manager
 from flask import render_template,make_response, request, jsonify, send_file, redirect, url_for, flash, session, abort, send_from_directory
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import generate_csrf
-<<<<<<< HEAD
-import datetime
-=======
 from datetime import datetime, timedelta
->>>>>>> a6d748db0f92cd4154417653e49bbb97a547e542
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import Posts,Likes,Follows,Users
 from app.forms import RegisterForm, LoginForm, PostForm
 from werkzeug.security import check_password_hash
 import os
-<<<<<<< HEAD
-=======
 from flask_wtf.csrf import generate_csrf
 from flask_jwt_extended import create_access_token
 import jwt
->>>>>>> a6d748db0f92cd4154417653e49bbb97a547e542
 
 ###
 # Routing for your application.
