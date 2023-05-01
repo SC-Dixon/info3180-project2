@@ -21,3 +21,8 @@ Werkzeug==2.2.3
 WTForms==3.0.1
 zipp==3.15.0
 email-validator==1.3.1
+<<<<<<< HEAD
+=======
+flask-jwt-extended
+axios
+>>>>>>> a6d748db0f92cd4154417653e49bbb97a547e542
