@@ -45,6 +45,32 @@ def get_userposts(user_id):
             return jsonify({'posts': posts})
     except:
         return jsonify({"errors": "Request Failed"}), 401
+    
+@app.route('/api/v1/users/<user_id>', methods=['GET'])
+def get_userprofile(user_id):
+    try:
+        if request.method == "GET":
+            user_profile = db.session.query(Users).filter_by(id=user_id).all()
+
+            posts = []
+
+            for profile in user_profile:
+                profile_data = {
+                    'id': profile.id,
+                    'username': profile.username,
+                    'firstname': profile.firstname,
+                    'lastname': profile.lastname,
+                    'email': profile.email,
+                    'location': profile.location,
+                    'biography': profile.biography,
+                    'profile_photo': profile.profile_photo,
+                    'joined_on': profile.joined_on
+                }
+                posts.append(profile_data)
+
+            return jsonify({'User': posts})
+    except Exception as e:
+        return jsonify({"errors": str(e)}), 401
 
 @app.route('/api/users/<user_id>/follow', methods=['POST'])
 @login_required
