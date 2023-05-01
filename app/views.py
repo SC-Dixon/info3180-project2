@@ -176,7 +176,7 @@ def login():
                 'sub': user.id, 
                 'user': username,
                 'iat': timestamp,
-                'exp': timestamp + timedelta(hours=2) 
+                'exp': timestamp + timedelta(hours=5) 
             }
 
             token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
