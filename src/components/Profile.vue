@@ -20,6 +20,7 @@
   import { ref, onMounted } from "vue";
   let posts = ref("");
   let csrf_token = ref("");
+  let userid = localStorage.getItem("userid")
   onMounted(() => {
     getCsrfToken();
     fetchUser();
@@ -35,7 +36,7 @@
   }
 
 function fetchUser(){
-  fetch("/api/v1/users/<user_id>/posts", {
+  fetch(`/api/v1/users/${userid}/posts`, {
       method: "GET",
       headers: {
       'X-CSRFToken': csrf_token.value

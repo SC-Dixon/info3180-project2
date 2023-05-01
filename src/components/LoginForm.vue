@@ -39,6 +39,8 @@
         FlashMessage.value = "Login Successful!";
          success.value = true;
          danger.value = false;
+         const userid = data.id
+         localStorage.setItem('userid',userid)
          localStorage.setItem('username',form_data.get("username"));
          localStorage.setItem('JWT',data.token);
          clearFormData(); 
