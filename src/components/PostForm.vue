@@ -63,7 +63,7 @@
 
 
 <template>
-  <div class="heading">
+  <div class="container-fluid">
     <h1 >Add Post</h1>
     <div class = "formbox">
     <div v-if="success" class = "alert alert-success">{{FlashMessage}}</div>
@@ -71,13 +71,15 @@
       <li v-for= "d in FlashMessage">{{d}}</li>
     </div>
     <form id="PostForm" @submit.prevent="addPost">
-      <div>
-        <label for="photo">Photo: </label>
+      <div class="form-group mb-3">
+        <label class="form-label" for="photo">Photo: </label>
+        <br>
         <input type="file" name="photo" required>
       </div>
-      <div>
-        <label for="caption">Caption: </label>
-        <textarea name="caption" required></textarea>
+      <div class="form-group mb-3">
+        <label class="form-label" for="caption">Caption: </label>
+        <br>
+        <textarea  name="caption" required></textarea>
       </div>
       <div>
         <a><button type="submit" class="btn btn-primary">Add Post</button></a>

@@ -19,16 +19,16 @@
             <li class="nav-item">
               <RouterLink to="/" class="nav-link active">Home</RouterLink>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="explore1">
               <RouterLink class="nav-link" to="/explore">Explore</RouterLink>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="profile1">
               <RouterLink class="nav-link" to="/users/<user_id>/posts">My Profile</RouterLink>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="post1">
               <RouterLink class="nav-link" to="/posts/new">Add Post</RouterLink>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="logout1">
               <RouterLink  class="nav-link"  to="/logout">Logout</RouterLink>
             </li>
           </ul>
@@ -42,7 +42,22 @@
 
 <script>
 import { RouterLink } from "vue-router";
+window.onload = function(){
 
+  let logoutEl =document.getElementById('logout1');
+  let postEl =document.getElementById('post1');
+  let profileEl =document.getElementById('profile1');
+  let exploreEl =document.getElementById('explore1');
+  let curuserid = sessionStorage.getItem("curuserid")
+  console.log(curuserid)
+  console.log(curuserid == null)
+  if (curuserid == null){
+    logoutEl.style.display = "none";
+    postEl.style.display = "none";
+    profileEl.style.display = "none";
+    exploreEl.style.display = "none";
+  }
+}
 </script>
 
 <style>

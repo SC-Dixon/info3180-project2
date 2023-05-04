@@ -43,8 +43,8 @@ def get_userposts(user_id):
                 post_data = {
                     'id': post.id,
                     'caption': post.caption,
-                    'photo': post.photo,
-                    'created_on': post.created_on
+                    'photo': url_for('get_image', filename=post.photo),
+                    'created_on': post.created_on,
                 }
                 posts.append(post_data)
 
@@ -72,23 +72,24 @@ def follow_user(user_id):
 
     return jsonify({'message': 'Successfully followed user'}), 200
 
-@app.route('/api/v1/<user_id>/posts', methods=['GET'])
+@app.route('/api/v1/posts', methods=['GET'])
 def get_allposts():
     try:
         if request.method == "GET":
             #Retrieve data from the database
             posts = db.session.query(Posts).all()
-            data = []
+            print(posts)
+            postsList = []
             
             for post in posts:
-                data.append ({
+                postsList.append ({
                     'id': post.id,
                     'caption': post.caption,
-                    'photo': post.photo,
+                    'photo':  url_for('get_image', filename=post.photo),
                     'user_id': post.user_id,
                     'created_on': post.created_on
                 })
-            return jsonify (data=data), 200 
+            return jsonify ({'posts' : postsList}), 200 
     except:
         return jsonify({"errors": "Request Failed"}), 401
     
@@ -109,6 +110,8 @@ def like_post(post_id):
 
     return jsonify({'success': 'Like added successfully'}), 201
 
+
+
 @app.route('/api/v1/register', methods=['POST'])
 def register():
 
@@ -125,7 +128,6 @@ def register():
         biography = form.biography.data
         profile_photo = form.profile_photo.data
         securedprofile_photo = secure_filename(profile_photo.filename)
-        joined_on = datetime.datetime.now()
 
         profile_photo.save(os.path.join(app.config['UPLOAD_FOLDER'], securedprofile_photo))
 
@@ -151,7 +153,7 @@ def register():
             "errors": form_errors(form) 
             }),400
 
-@app.route('/api/v1/auth/login', methods=['POST'])
+@app.route('/api/v1/auth/login', methods=['POST','GET'])
 def login():
     form = LoginForm()
 
@@ -197,6 +199,10 @@ def login():
     
     return jsonify(errors=form_errors(form)), 400
 
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect('/login?next=' + request.path)
+
 
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
@@ -214,21 +220,21 @@ def logout():
         }),200 
 
 @app.route('/api/v1/users/<user_id>', methods=['GET'])
-def view_user(userid):
+def view_user(user_id):
     try:
         if request.method == 'GET':
-            users = Users.query.filter_by(id=userid).all()
-            numfollowers = Follows.query.filter_by(user_id=userid).count()
-            numposts = Posts.query.filter_by(user_id=userid).count()
-            isFollowed = Follows.query.filter_by(user_id=userid).filter_by(follower_id=current_user.id).count()
+            users = Users.query.filter_by(id=user_id).all()
+            numfollowers = Follows.query.filter_by(user_id=user_id).count()
+            numposts = Posts.query.filter_by(user_id=user_id).count()
+            isFollowed = Follows.query.filter_by(user_id=user_id).filter_by(follower_id=current_user.id).count()
             isFollowed = isFollowed==1
-            data = []
+            usersList = []
             for user in users:
                 a_user = {
                     'id': user.id,
                     'name': user.firstname + " " + user.lastname,
                     'username': user.username,
-                    'photo': user.profile_photo,
+                    'photo': url_for('get_image', filename=user.profile_photo),
                     'email': user.email,
                     'location': user.location,
                     'biography': user.biography,
@@ -237,9 +243,9 @@ def view_user(userid):
                     'numposts': numposts,
                     'isFollowed': isFollowed
                 }
-                data.append(a_user)
+                usersList.append(a_user)
 
-            return jsonify(data), 200
+            return jsonify({'users' : usersList}), 200
     except Exception as e:
         return jsonify({"errors": e}), 400
 

@@ -44,7 +44,9 @@
          danger.value = false;
          clearFormData();
          console.log(data);
-         window.location.href = '/';
+         setTimeout(function() {
+              window.location.href = '/';
+            }, 1000);
          
       }
     

@@ -40,11 +40,13 @@
          success.value = true;
          danger.value = false;
          const userid = data.id
-         localStorage.setItem('userid',userid)
+         sessionStorage.setItem('curuserid',userid)
          localStorage.setItem('username',form_data.get("username"));
          localStorage.setItem('JWT',data.token);
          clearFormData(); 
-         window.location.href = '/';    
+         setTimeout(function() {
+              window.location.href = '/';
+            }, 1000);   
       }
     
     })

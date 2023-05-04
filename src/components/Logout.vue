@@ -29,15 +29,19 @@ import { RouterLink } from "vue-router";
         .then((data) => { 
             self.FlashMessage =  data.message;
             console.log(data);
+            sessionStorage.removeItem('curuserid')
             localStorage.removeItem('username');
             localStorage.removeItem('JWT'); 
-            window.location.href = '/';
+            setTimeout(function() {
+              window.location.href = '/';
+            }, 1000);
+            
             
               
       })
       .catch(function (error) {
       console.log(error);
-      self.FlashMessage =  "Logout Unsucessful, are you sure you logged in?";
+      self.FlashMessage =  "Logout Unsuccessful, are you sure you logged in?";
     });
 },
 getCsrfToken() {
